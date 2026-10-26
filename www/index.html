@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#110714">
+    <title>Sticker Maker // Splash</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            background: #110714;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        #splashScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #110714;
+            overflow: hidden;
+            z-index: 9999;
+            transition: opacity 0.6s ease-in-out;
+        }
+
+        #splashScreen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Sfondo a tutto schermo */
+        .splash-bg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            z-index: 1;
+            transition: opacity 1.2s ease-in;
+        }
+        .splash-bg-layer.show {
+            opacity: 0.45;
+        }
+
+        /* --- EFFETTO SCANLINES VECCHIO SCHERMO --- */
+        .crt-scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 5;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.03),
+                rgba(0, 255, 0, 0.01),
+                rgba(0, 0, 255, 0.03)
+            );
+            background-size: 100% 3px, 4px 100%;
+            opacity: 0.6;
+        }
+
+        /* --- ANIMAZIONE VIBRAZIONE / GLITCH DELICATA --- */
+        @keyframes subtleGlitch {
+            0% { transform: translate(-50%, -50%) translate(0, 0); }
+            20% { transform: translate(-50%, -50%) translate(-0.8px, 0.8px); }
+            40% { transform: translate(-50%, -50%) translate(0.8px, -0.5px); }
+            60% { transform: translate(-50%, -50%) translate(-0.5px, -0.8px); }
+            80% { transform: translate(-50%, -50%) translate(0.6px, 0.6px); }
+            100% { transform: translate(-50%, -50%) translate(0, 0); }
+        }
+
+        /* 1. Logo Sticker Maker */
+        .splash-text-img {
+            position: absolute;
+            top: 38%; 
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(15px);
+            width: 85%;
+            max-width: 330px;
+            height: auto;
+            opacity: 0;
+            z-index: 2;
+            transition: opacity 1s ease-in, transform 1s ease-in;
+            filter: drop-shadow(0 0 18px rgba(255, 68, 0, 0.8));
+        }
+        .splash-text-img.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) translateY(0);
+            animation: subtleGlitch 3.5s infinite ease-in-out;
+        }
+
+        /* 2. Adesivo centrale */
+        .splash-badge-container {
+            position: absolute;
+            top: 68%; 
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            z-index: 2;
+            cursor: pointer;
+            transition: opacity 0.8s ease-in, transform 0.8s ease-in;
+        }
+        .splash-badge-container.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: subtleGlitch 4s infinite ease-in-out reverse;
+        }
+        .splash-badge-container:active {
+            transform: translate(-50%, -50%) scale(0.95);
+            animation: none;
+        }
+
+        .splash-badge-img {
+            width: 65%;
+            max-width: 210px;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 0 14px rgba(255, 100, 0, 0.7));
+        }
+
+        .tap-hint {
+            color: #888;
+            font-size: 11px;
+            letter-spacing: 3px;
+            margin-top: 15px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splashScreen" onclick="enterApp()">
+        <!-- Sfondo -->
+        <img src="bg/splash3.jpg" class="splash-bg-layer" id="bgLayer" alt="Background" onerror="this.style.display='none'">
+        
+        <!-- Effetto schermo CRT / Scanlines -->
+        <div class="crt-scanlines"></div>
+
+        <!-- Splash 1: Logo Sticker Maker -->
+        <img src="bg/splash1.png" class="splash-text-img" id="textLayer" alt="Sticker Maker" onerror="this.style.display='none'">
+        
+        <!-- Splash 2: Adesivo Tap to Start -->
+        <div class="splash-badge-container" id="badgeLayer">
+            <img src="bg/splash2.png" class="splash-badge-img" alt="Hello Badge" onerror="this.style.display='none'">
+            <div class="tap-hint" id="hintLayer">> TAP TO START <</div>
+        </div>
+    </div>
+
+    <!-- Script di gestione Capacitor per il Tasto Indietro e Animazioni -->
+    <script type="module">
+        import { App } from 'https://cdn.jsdelivr.net/npm/@capacitor/app@latest/+esm';
+
+        // Intercetta il tasto Back fisico/virtuale sulla splash screen e chiude l'app
+        App.addListener('backButton', () => {
+            App.exitApp();
+        });
+    </script>
+
+    <script>
+        // Avvio sequenziale delle animazioni in dissolvenza
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => document.getElementById('bgLayer').classList.add('show'), 200);
+            setTimeout(() => document.getElementById('textLayer').classList.add('show'), 800);
+            setTimeout(() => {
+                document.getElementById('badgeLayer').classList.add('show');
+            }, 1500);
+        });
+
+        // Funzione di reindirizzamento al click
+        let isLeaving = false;
+        function enterApp() {
+            if (isLeaving) return;
+            isLeaving = true;
+            
+            const splash = document.getElementById('splashScreen');
+            splash.classList.add('fade-out');
+            
+            setTimeout(() => {
+                window.location.href = 'sticker.html'; 
+            }, 600);
+        }
+    </script>
+</body>
+</html>

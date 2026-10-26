@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+    
+    <title>Sticker Maker // NKNW_Lab</title>
+
+    <link rel="preload" href="sticker/2.png" as="image">
+    <link rel="preload" href="sticker/3.png" as="image">
+    <link rel="preload" href="bg/splash3.jpg" as="image">
+
+    <style>
+        @font-face { font-family: 'Lacquer'; src: url('fonts/1.ttf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Acid'; src: url('fonts/2.TTF') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Barge'; src: url('fonts/3.otf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Earthquake'; src: url('fonts/4.TTF') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Hungaro'; src: url('fonts/5.otf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Drunk'; src: url('fonts/6.otf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Shaker'; src: url('fonts/7.ttf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Nautilus'; src: url('fonts/8.ttf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Spiral'; src: url('fonts/9.ttf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Blazter'; src: url('fonts/10.ttf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Metal'; src: url('fonts/11.ttf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Frame'; src: url('fonts/12.ttf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Bounce'; src: url('fonts/13.otf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Cracked'; src: url('fonts/14.ttf') format('truetype'); font-display: swap; }
+        @font-face { font-family: 'Qadaery'; src: url('fonts/15.ttf') format('truetype'); font-display: swap; }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        :root {
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: url('bg/splash3.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff00;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding-top: var(--safe-top);
+            padding-bottom: var(--safe-bottom);
+            padding-left: var(--safe-left);
+            padding-right: var(--safe-right);
+        }
+
+        .system-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--safe-top);
+            background: rgba(0, 0, 0, 0.124);
+            z-index: 9999;
+            display: none;
+        }
+
+        .top-banner-wrapper {
+            position: relative;
+            height: 70px;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .banner-img {
+            max-height: 45px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .floating-info-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0);
+            border: 1px solid rgba(17, 255, 0, 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            padding: 6px;
+        }
+
+        .floating-info-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .audio-toggle-btn {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            color: #fff;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .audio-toggle-btn.muted {
+            color: #4b0d06;
+            border-color: #771409;
+        }
+
+        .preview-section {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            flex-shrink: 0;
+            padding: 0;
+        }
+
+        #stickerCanvas {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            background: transparent;
+            aspect-ratio: 619 / 291;
+            touch-action: none;
+            cursor: grab;
+            border: none;
+        }
+
+        #stickerCanvas.drawing-mode {
+            cursor: crosshair;
+        }
+
+        #stickerCanvas:active {
+            cursor: grabbing;
+        }
+
+        .lab-banner {
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .header {
+            display: flex;
+            height: 40px;
+            background: transparent;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+        }
+
+        .header-btn {
+            flex: 1;
+            background: rgba(11, 5, 5, 0);
+            border: none;
+            color: #979a98;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header-btn:last-child {
+            border-right: none;
+        }
+
+        .header-btn:active {
+            background: rgba(255, 255, 255, 0);
+        }
+
+        .controls-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 15px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            gap: 8px;
+            justify-content: space-around;
+            background: transparent;
+        }
+
+        .sliders-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .spacing-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.204);
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .spacing-label {
+            color: #d8aa05;
+            font-size: 9px;
+            letter-spacing: 1px;
+            margin-bottom: 3px;
+        }
+
+        .spacing-slider, .color-slider-control {
+            width: 95%;
+            -webkit-appearance: none;
+            height: 4px;
+            background: #2222224e;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .spacing-slider::-webkit-slider-thumb, .color-slider-control::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #5e3b3b;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #71202000;
+        }
+
+        .color-slider-control {
+            background: linear-gradient(to right, #000000, #d9534f, #f0ad4e, #5cb85c, #5bc0de, #0275d8, #d9534f, #ffffff);
+        }
+
+        .top-tools-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tool-glow-btn {
+            width: 51px;
+            height: 61px;
+            background: rgba(0, 0, 0, 0);
+            border-radius: 6px;
+            font-size: 29px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .tool-glow-btn.draw-btn {
+            color: #283c7d;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .tool-glow-btn.draw-btn.active-draw {
+            background: #983f1e;
+            color: #00000000;
+        }
+
+        .tool-glow-btn.glow-btn {
+            color: #983f1e;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .tool-glow-btn.glow-btn.active {
+            background: #238c4f;
+            color: #00000000;
+        }
+
+        .tool-glow-btn.delete-btn {
+            color: #238c4f;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tool-glow-btn.upload-btn {
+            color: #9b1843;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .terminal-input-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-input-label {
+            color: #aaa;
+            font-size: 9px;
+            letter-spacing: 2px;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+        .terminal-input {
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.131);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #1cba03;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 0 12px;
+            letter-spacing: 2px;
+            outline: none;
+            text-transform: uppercase;
+        }
+
+        .terminal-input:focus {
+            border-color: #2ecc71;
+        }
+
+        .print-section {
+            padding: 0;
+            margin-top: 4px;
+        }
+
+        .print-btn {
+            width: 100%;
+            height: 46px;
+            background: rgba(167, 0, 0, 0.177);
+            border: 1px solid #cd392999;
+            color: #a0372b;
+            font-size: 19px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            cursor: pointer;
+            border-radius: 0px;
+            transition: all 0.2s ease;
+        }
+
+        .print-btn:active {
+            background: #ff1900;
+            color: #000;
+        }
+
+        .modal, .terminal-fullscreen-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .modal.active, .terminal-fullscreen-modal.active {
+            display: flex;
+        }
+
+        .modal-header, .terminal-modal-header {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            border-bottom: 1px solid #333;
+            color: #fff;
+            font-size: 13px;
+            letter-spacing: 2px;
+        }
+
+        .modal-close, .terminal-modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .modal-content, .terminal-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 15px;
+        }
+
+        .info-content-wrapper {
+            max-width: 500px;
+            margin: 0 auto;
+            color: #ccc;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .template-item {
+            aspect-ratio: 619 / 291;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: uppercase;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .font-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .font-item {
+            padding: 10px;
+            border: 1px solid #444;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .font-item.selected {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.2);
+        }
+
+        #printModal {
+            align-items: center;
+            justify-content: center;
+        }
+
+        #printModal .modal-header {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .print-preview-container {
+            width: 100%;
+            max-width: 420px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            overflow: auto;
+            background: #11111100;
+        }
+
+        #printCanvas {
+            width: 100%;
+            height: 100%;
+            max-height: none;
+            object-fit: contain;
+            border: none;
+            box-shadow: none;
+        }
+
+        .print-actions {
+            width: 100%;
+            max-width: 420px;
+            height: 60px;
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            border-top: 1px solid #333;
+            background: #00000000;
+        }
+
+        .print-actions .btn {
+            flex: 1;
+            border: 1px solid #444;
+            background: transparent;
+            color: #fff;
+            font-size: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .print-actions .btn.save {
+            border-color: #3b6405;
+            color: #2ecc71;
+        }
+
+        .print-actions .btn.save:active {
+            background: #117a3d00;
+            color: #00000000;
+        }
+
+        .hidden-input { display: none; }
+
+        .toast {
+            position: fixed;
+            bottom: calc(20px + var(--safe-bottom));
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0, 0, 0, 0);
+            color: #2ecc71;
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: 1px solid #2ecc71;
+            font-size: 13px;
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="system-bar"></div>
+
+    <div class="top-banner-wrapper">
+        <button class="audio-toggle-btn" id="audioToggle" onclick="app.toggleAudio()" title="Toggle Audio">
+            🔊
+        </button>
+        <img src="ico/banner.png" alt="NKNW_LAB Banner" class="banner-img">
+        <button class="floating-info-btn" onclick="app.openInfoModal()" title="Info">
+            <img src="ico/info.png" alt="Info">
+        </button>
+    </div>
+
+    <div class="preview-section">
+        <canvas id="stickerCanvas" width="619" height="291"></canvas>
+    </div>
+
+    <div class="lab-banner">
+        <span class="brand">
+            <span style="color: #aaa;">☠ NKNW_LAB_</span><span style="color: #9b59b6;">G</span><span style="color: #3498db;">R</span><span style="color: #2ecc71;">A</span><span style="color: #f1c40f;">F</span><span style="color: #3498db;">X</span><span style="color: #aaa;"> ☠</span>
+        </span>
+    </div>
+
+    <div class="header">
+        <button class="header-btn" onclick="app.openModal('sticker')">STICKERS</button>
+        <button class="header-btn" onclick="app.openModal('font')">FONTS</button>
+    </div>
+
+    <div class="controls-section">
+        <div class="sliders-grid">
+            <div class="spacing-row">
+                <div class="spacing-label">←  ₍^. .^₎⟆  →</div>
+                <input type="range" class="spacing-slider" id="spacingSlider" 
+                       min="-10" max="30" value="0" 
+                       oninput="app.updateSpacing(this.value)">
+            </div>
+            <div class="spacing-row">
+                <div class="spacing-label">🟥🟧🟨🟩🟦🟪</div>
+                <input type="range" class="color-slider-control" id="fontColorSlider" 
+                       min="0" max="360" value="200" 
+                       oninput="app.updateFontColorFromHue(this.value)">
+            </div>
+        </div>
+
+     
+
+        <div class="terminal-input-container">
+            <div class="terminal-input-label">> TYPE TEXT:</div>
+            <input type="text" class="terminal-input" id="textInput" value="NKNW" oninput="app.updateText(this.value)">
+        </div>
+
+           <div class="top-tools-row">
+            <button class="tool-glow-btn draw-btn" id="drawToggleBtn" onclick="app.toggleDrawMode()" title="Draw">🖍️</button>
+            <button class="tool-glow-btn glow-btn" id="btnGlow" onclick="app.toggleEffect('glow')" title="Glow">🔦</button>
+            <button class="tool-glow-btn delete-btn" onclick="app.clearDrawings()" title="Clear">🗑️</button>
+            <button class="tool-glow-btn upload-btn" onclick="document.getElementById('fileInput').click()" title="Upload">📷</button>
+        </div>
+        
+        <div class="print-section">
+            <button class="print-btn" onclick="app.openModal('print')">⚠︎PRINT⚠︎</button>
+        </div>
+    </div>
+
+    <div id="infoModal" class="terminal-fullscreen-modal">
+        <div class="terminal-modal-header">
+            <span style="font-size: 14px; color: #08c1b2; text-shadow: 0 0 5px rgba(0, 229, 255, 0.6);">> STICKER MAKER V2.0 _</span>
+            <button class="terminal-modal-close" onclick="app.closeInfoModal()" style="color: #00e5ff; border-color: #00e5ff; text-shadow: 0 0 5px rgba(0, 229, 255, 0.6);">[X]</button>
+        </div>
+        <div class="terminal-modal-body">
+            <div class="info-content-wrapper" style="text-align: center; padding: 20px;">
+                <p style="font-size: 18px; margin-bottom: 15px; color: #02974f;"><strong>☠ I N F O ☠</strong></p>
+                <p style="margin-bottom: 25px; color: #dd9c05;">
+                    Select a sticker, choose a font, or draw directly on the template! Use your fingers to adjust size and position in the preview.<br><br>
+                    Then tap "PRINT" to generate an A4 sheet with a 6x2 sticker layout ready for printing!<br><br>
+                    There are no ads or subscriptions, if you want to support my work or projects, leave a positive (or negative) review, share, visit my website, or buy me a coffin.<br><br>
+                    See you on the bench!<br><br>
+                
+                (Template size is 619x291px;)</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-width: 280px; margin: 0 auto 25px auto; justify-items: center;">
+                    <a href="https://www.buymeacoffee.com/nknw_lab" target="_blank" onclick="return openExternalLink(this.href);">
+                        <img src="ico/coffee.png" alt="Buy Me a Coffee" style="height: 42px; object-fit: contain;">
+                    </a>
+                    <a href="https://bscscan.com/address/0x216FA3baF7fc8FE6cE34C1636182144139674450" target="_blank" onclick="return openExternalLink(this.href);">
+                        <img src="ico/btc.png" alt="Crypto" style="height: 42px; object-fit: contain;">
+                    </a>
+                    <a href="https://www.fab.com/sellers/NKNW_Lab" target="_blank" onclick="return openExternalLink(this.href);">
+                        <img src="ico/fab.png" alt="Fab" style="height: 42px; object-fit: contain;">
+                    </a>
+                    <a href="https://nknw.itch.io/" target="_blank" onclick="return openExternalLink(this.href);">
+                        <img src="ico/itch.png" alt="Itch.io" style="height: 42px; object-fit: contain;">
+                    </a>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <a href="http://nknw-lab.surge.sh/" target="_blank" onclick="return openExternalLink(this.href);" style="color: #08b16e; text-decoration: none; font-size: 19px; letter-spacing: 1.3px;">> VISIT THE LAB _</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="stickerModal">
+        <div class="modal-header">
+            <span class="modal-title">> STICKERS _</span>
+            <button class="modal-close" onclick="app.closeModal('sticker')">×</button>
+        </div>
+        <div class="modal-content">
+            <div class="template-grid" id="templateGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="fontModal">
+        <div class="modal-header">
+            <span class="modal-title">> FONTS _</span>
+            <button class="modal-close" onclick="app.closeModal('font')">×</button>
+        </div>
+        <div class="modal-content">
+            <div class="font-list" id="fontList"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="printModal">
+        <div class="modal-header">
+            <span class="modal-title">> PREVIEW _</span>
+            <button class="modal-close" onclick="app.closeModal('print')">×</button>
+        </div>
+        <div class="print-preview-container">
+            <canvas id="printCanvas"></canvas>
+        </div>
+        <div class="print-actions">
+            <button class="btn save" onclick="app.saveToGallery()">Save</button>
+            <button class="btn" onclick="app.closeModal('print')">Cancel</button>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" class="hidden-input" accept="image/*" onchange="app.loadFile(this.files[0])">
+
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { Camera, CameraResultType } from '@capacitor/camera';
+        import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+        import { App } from '@capacitor/app';
+        import { StatusBar, Style } from '@capacitor/status-bar';
+       
+        
+        window.CapCamera = { Camera, CameraResultType };
+        window.CapFS = { Filesystem, Directory, Encoding };
+        window.CapApp = { App };
+        window.CapStatusBar = { StatusBar, Style };
+       
+    </script>
+
+    <script>
+        // Fullscreen & Immersive Mode Setup
+        async function setupFullscreen() {
+            try {
+                if (window.CapStatusBar) {
+                    await window.CapStatusBar.StatusBar.setOverlaysWebView({ overlay: true });
+                    await window.CapStatusBar.StatusBar.hide();
+                    await window.CapStatusBar.StatusBar.setStyle({ style: window.CapStatusBar.Style.Dark });
+                }
+            
+            } catch (e) {
+                console.log('Fullscreen setup error:', e);
+            }
+        }
+
+        // Back Button Handler with Modal Stack
+        const modalStack = [];
+        
+        function pushModal(name) {
+            modalStack.push(name);
+        }
+        
+        function popModal() {
+            return modalStack.pop();
+        }
+        
+        function closeTopModal() {
+            const topModal = popModal();
+            if (topModal) {
+                const modalEl = document.getElementById(topModal + 'Modal');
+                if (modalEl) modalEl.classList.remove('active');
+                return true;
+            }
+            return false;
+        }
+
+        document.addEventListener('deviceready', function() {
+            setupFullscreen();
+            
+            document.addEventListener('backbutton', function(e) {
+                e.preventDefault();
+                
+                // Close modals first
+                if (closeTopModal()) {
+                    return;
+                }
+                
+                // Then confirm exit
+                if (confirm('Exit Sticker Maker?')) {
+                    if (window.CapApp && window.CapApp.App) {
+                        window.CapApp.App.exitApp();
+                    } else {
+                        window.close();
+                    }
+                }
+            }, false);
+        }, false);
+
+        function openExternalLink(url) {
+            if (typeof cordova !== 'undefined' && cordova.InAppBrowser) {
+                cordova.InAppBrowser.open(url, '_system');
+            } else {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            }
+            return false;
+        }
+
+        // Audio System - Epilepsy Safe (no flashing, smooth transitions)
+        class AudioEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = localStorage.getItem('sticker_muted') === 'true';
+                this.sounds = {};
+                this.init();
+            }
+            
+            init() {
+                try {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) {
+                    console.log('Audio not supported');
+                }
+                this.updateUI();
+            }
+            
+            toggleMute() {
+                this.muted = !this.muted;
+                localStorage.setItem('sticker_muted', this.muted);
+                this.updateUI();
+                return this.muted;
+            }
+            
+            updateUI() {
+                const btn = document.getElementById('audioToggle');
+                if (btn) {
+                    btn.textContent = this.muted ? '🔇' : '🔊';
+                    btn.classList.toggle('muted', this.muted);
+                }
+            }
+            
+            playTone(freq, duration, type = 'sine') {
+                if (this.muted || !this.ctx) return;
+                
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    
+                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.start(this.ctx.currentTime);
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+            
+            playClick() {
+                this.playTone(800, 0.05, 'sine');
+            }
+            
+            playSuccess() {
+                if (this.muted || !this.ctx) return;
+                this.playTone(523.25, 0.1, 'sine');
+                setTimeout(() => this.playTone(659.25, 0.1, 'sine'), 100);
+                setTimeout(() => this.playTone(783.99, 0.2, 'sine'), 200);
+            }
+            
+            playError() {
+                if (this.muted || !this.ctx) return;
+                this.playTone(200, 0.3, 'sawtooth');
+            }
+            
+            resume() {
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+        }
+
+        const audio = new AudioEngine();
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.color = type === 'error' ? '#e74c3c' : '#2ecc71';
+            toast.style.borderColor = type === 'error' ? '#e74c3c' : '#2ecc71';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        const app = {
+            canvas: null,
+            ctx: null,
+            STICKER_W: 619,
+            STICKER_H: 291,
+            
+            get A4_W() { return (this.STICKER_W * 2) + 3; },
+            get A4_H() { return (this.STICKER_H * 6) + (5 * 3); },
+            
+            state: {
+                text: 'NKNW',
+                font: "'Lacquer', monospace",
+                spacing: 0,
+                fontSize: 110,
+                customFontColor: 'hsl(200, 90%, 55%)',
+                effects: { glow: false },
+                image: null,
+                textX: 0,
+                textY: 0,
+                isDrawingMode: false,
+                strokes: [],
+                useDrawnSticker: false
+            },
+
+            fonts: [
+                { name: 'Lacquer', family: "'Lacquer', monospace" },
+                { name: 'Acid', family: "'Acid', monospace" },
+                { name: 'Barge', family: "'Barge', monospace" },
+                { name: 'Earthquake', family: "'Earthquake', monospace" },
+                { name: 'Hungaro', family: "'Hungaro', monospace" },
+                { name: 'Drunk', family: "'Drunk', monospace" },
+                { name: 'Shaker', family: "'Shaker', monospace" },
+                { name: 'Nautilus', family: "'Nautilus', monospace" },
+                { name: 'Spiral', family: "'Spiral', monospace" },
+                { name: 'Blazter', family: "'Blazter', monospace" },
+                { name: 'Metal', family: "'Metal', monospace" },
+                { name: 'Frame', family: "'Frame', monospace" },
+                { name: 'Bonce', family: "'Bonce', monospace" },
+                { name: 'Cracked', family: "'Cracked', monospace" },
+                { name: 'Qadaery', family: "'Qadaery', monospace" }
+            ],
+
+            init() {
+                this.canvas = document.getElementById('stickerCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.setupStickerInteractivity();
+                this.populateFonts();
+                this.populateTemplates();
+
+                const firstFontEl = document.querySelector('.font-item');
+                if (firstFontEl) firstFontEl.classList.add('selected');
+
+                const defaultImg = new Image();
+                defaultImg.onload = () => {
+                    this.state.image = defaultImg;
+                    this.render();
+                };
+                defaultImg.src = 'sticker/1.png';
+                
+                // Resume audio context on first interaction
+                document.addEventListener('click', () => audio.resume(), { once: true });
+                document.addEventListener('touchstart', () => audio.resume(), { once: true });
+            },
+
+            toggleAudio() {
+                const muted = audio.toggleMute();
+                if (!muted) audio.playClick();
+            },
+
+            toggleDrawMode() {
+                this.state.isDrawingMode = !this.state.isDrawingMode;
+                const btn = document.getElementById('drawToggleBtn');
+                if (this.state.isDrawingMode) {
+                    btn.classList.add('active-draw');
+                    this.canvas.classList.add('drawing-mode');
+                    audio.playClick();
+                } else {
+                    btn.classList.remove('active-draw');
+                    this.canvas.classList.remove('drawing-mode');
+                }
+            },
+
+            clearDrawings() {
+                this.state.strokes = [];
+                this.state.useDrawnSticker = false;
+                this.render();
+                audio.playClick();
+            },
+
+            setupStickerInteractivity() {
+                const canvas = this.canvas;
+                let isDragging = false;
+                let isDrawing = false;
+                let startX = 0, startY = 0;
+                let initialPinchDistance = null;
+                let initialFontSize = 110;
+
+                const getCanvasCoords = (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                    if (clientX === undefined || clientY === undefined) return null;
+                    return {
+                        x: (clientX - rect.left) * (this.STICKER_W / rect.width),
+                        y: (clientY - rect.top) * (this.STICKER_H / rect.height)
+                    };
+                };
+
+                const getPinchDistance = (touches) => {
+                    return Math.hypot(
+                        touches[0].clientX - touches[1].clientX,
+                        touches[0].clientY - touches[1].clientY
+                    );
+                };
+
+                canvas.addEventListener('mousedown', (e) => {
+                    if (this.state.isDrawingMode) {
+                        isDrawing = true;
+                        this.startStroke(getCanvasCoords(e));
+                    } else {
+                        isDragging = true;
+                        startX = e.clientX;
+                        startY = e.clientY;
+                    }
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    if (this.state.isDrawingMode && isDrawing) {
+                        this.appendStroke(getCanvasCoords(e));
+                    } else if (!this.state.isDrawingMode && isDragging) {
+                        const rect = canvas.getBoundingClientRect();
+                        this.state.textX += (e.clientX - startX) * (this.STICKER_W / rect.width);
+                        this.state.textY += (e.clientY - startY) * (this.STICKER_H / rect.height);
+                        startX = e.clientX;
+                        startY = e.clientY;
+                        this.render();
+                    }
+                });
+
+                window.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    isDrawing = false;
+                    initialPinchDistance = null;
+                });
+
+                canvas.addEventListener('touchstart', (e) => {
+                    if (this.state.isDrawingMode) {
+                        if (e.touches.length === 1) {
+                            isDrawing = true;
+                            this.startStroke(getCanvasCoords(e.touches[0]));
+                        }
+                        e.preventDefault();
+                    } else {
+                        if (e.touches.length === 2) {
+                            initialPinchDistance = getPinchDistance(e.touches);
+                            initialFontSize = this.state.fontSize;
+                            isDragging = false;
+                        } else if (e.touches.length === 1) {
+                            isDragging = true;
+                            startX = e.touches[0].clientX;
+                            startY = e.touches[0].clientY;
+                        }
+                    }
+                }, { passive: false });
+
+                let lastTouchRender = 0;
+                window.addEventListener('touchmove', (e) => {
+                    if (this.state.isDrawingMode && isDrawing) {
+                        this.appendStroke(getCanvasCoords(e.touches[0]));
+                        e.preventDefault();
+                    } else if (!this.state.isDrawingMode) {
+                        if (e.touches.length === 2 && initialPinchDistance !== null) {
+                            const currentDist = getPinchDistance(e.touches);
+                            const scale = currentDist / initialPinchDistance;
+                            this.state.fontSize = Math.max(30, Math.min(300, initialFontSize * scale));
+                            const now = performance.now();
+                            if (now - lastTouchRender > 16) {
+                                this.render();
+                                lastTouchRender = now;
+                            }
+                            e.preventDefault();
+                        } else if (isDragging && e.touches.length === 1) {
+                            const rect = canvas.getBoundingClientRect();
+                            const t = e.touches[0];
+                            this.state.textX += (t.clientX - startX) * (this.STICKER_W / rect.width);
+                            this.state.textY += (t.clientY - startY) * (this.STICKER_H / rect.height);
+                            startX = t.clientX;
+                            startY = t.clientY;
+                            const now = performance.now();
+                            if (now - lastTouchRender > 16) {
+                                this.render();
+                                lastTouchRender = now;
+                            }
+                        }
+                    }
+                }, { passive: false });
+
+                window.addEventListener('touchend', (e) => {
+                    isDragging = false;
+                    isDrawing = false;
+                    if (e.touches.length < 2) {
+                        initialPinchDistance = null;
+                    }
+                });
+            },
+
+            startStroke(pt) {
+                if (!pt) return;
+                if (this.state.strokes.length > 30) {
+                    this.state.strokes.shift();
+                }
+                this.state.strokes.push({ color: this.state.customFontColor, points: [pt], drips: [] });
+                this.state.useDrawnSticker = true;
+            },
+
+            appendStroke(pt) {
+                if (!pt || this.state.strokes.length === 0) return;
+                const currentStroke = this.state.strokes[this.state.strokes.length - 1];
+                const lastPt = currentStroke.points[currentStroke.points.length - 1];
+                
+                const dist = Math.hypot(pt.x - lastPt.x, pt.y - lastPt.y);
+                currentStroke.points.push(pt);
+
+                if (dist > 1.5 && Math.random() < 0.15) {
+                    currentStroke.drips.push({
+                        x: pt.x + (Math.random() * 8 - 4),
+                        y: pt.y,
+                        length: Math.random() * 50 + 20,
+                        radius: Math.random() * 4 + 1.8
+                    });
+                }
+
+                this.render();
+            },
+
+            updateFontColorFromHue(val) {
+                this.state.customFontColor = `hsl(${val}, 90%, 55%)`;
+                this.render();
+            },
+
+            updateText(val) {
+                this.state.text = val;
+                if (val.trim() !== '') this.state.useDrawnSticker = false;
+                this.render();
+            },
+
+            populateFonts() {
+                const list = document.getElementById('fontList');
+                list.innerHTML = '';
+                this.fonts.forEach(f => {
+                    const div = document.createElement('div');
+                    div.className = 'font-item';
+                    div.textContent = f.name;
+                    div.style.fontFamily = f.family;
+                    div.onclick = () => {
+                        audio.playClick();
+                        this.state.font = f.family;
+                        this.state.useDrawnSticker = false;
+                        document.querySelectorAll('.font-item').forEach(i => i.classList.remove('selected'));
+                        div.classList.add('selected');
+                        this.render();
+                        this.closeModal('font');
+                    };
+                    list.appendChild(div);
+                });
+            },
+
+            populateTemplates() {
+                const grid = document.getElementById('templateGrid');
+                grid.innerHTML = '';
+                for (let i = 1; i <= 15; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'template-item';
+                    const path = `sticker/${i}.png`;
+                    div.style.backgroundImage = `url('${path}')`;
+                    div.onclick = () => {
+                        audio.playClick();
+                        const img = new Image();
+                        img.onload = () => {
+                            this.state.image = img;
+                            this.render();
+                            this.closeModal('sticker');
+                        };
+                        img.onerror = () => {};
+                        img.src = path;
+                    };
+                    grid.appendChild(div);
+                }
+            },
+
+            toggleEffect(effect) {
+                this.state.effects[effect] = !this.state.effects[effect];
+                document.getElementById('btnGlow').classList.toggle('active', this.state.effects[effect]);
+                audio.playClick();
+                this.render();
+            },
+
+            updateSpacing(val) {
+                this.state.spacing = parseInt(val);
+                this.render();
+            },
+
+            loadFile(file) {
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.state.image = img;
+                        this.render();
+                        showToast('Image loaded');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+
+            render() {
+                const ctx = this.ctx;
+                const w = this.STICKER_W;
+                const h = this.STICKER_H;
+
+                ctx.clearRect(0, 0, w, h);
+
+                if (this.state.image) {
+                    ctx.drawImage(this.state.image, 0, 0, w, h);
+                }
+
+                if (this.state.useDrawnSticker && this.state.strokes.length > 0) {
+                    ctx.save();
+                    ctx.translate(this.state.textX, this.state.textY);
+                    ctx.lineWidth = Math.max(3, 8 + (this.state.spacing * 0.8));
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+
+                    this.state.strokes.forEach(stroke => {
+                        if (stroke.points.length === 0) return;
+                        ctx.strokeStyle = stroke.color;
+                        ctx.fillStyle = stroke.color;
+                        
+                        ctx.beginPath();
+                        stroke.points.forEach((p, idx) => {
+                            if (idx === 0) ctx.moveTo(p.x, p.y);
+                            else ctx.lineTo(p.x, p.y);
+                        });
+                        ctx.stroke();
+
+                        if (stroke.drips && stroke.drips.length > 0) {
+                            stroke.drips.forEach(drip => {
+                                ctx.beginPath();
+                                ctx.arc(drip.x, drip.y + drip.length, drip.radius, 0, Math.PI * 2);
+                                ctx.fill();
+
+                                ctx.beginPath();
+                                ctx.moveTo(drip.x - drip.radius, drip.y);
+                                ctx.lineTo(drip.x - drip.radius * 0.6, drip.y + drip.length);
+                                ctx.lineTo(drip.x + drip.radius * 0.6, drip.y + drip.length);
+                                ctx.lineTo(drip.x + drip.radius, drip.y);
+                                ctx.closePath();
+                                ctx.fill();
+                            });
+                        }
+                    });
+                    ctx.restore();
+                } else if (!this.state.useDrawnSticker && this.state.text) {
+                    ctx.font = `bold ${this.state.fontSize}px ${this.state.font}`;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+
+                    const textColor = this.state.customFontColor;
+
+                    if (this.state.effects.glow) {
+                        ctx.shadowColor = textColor;
+                        ctx.shadowBlur = 14;
+                    }
+
+                    ctx.fillStyle = textColor;
+
+                    const chars = this.state.text.split('');
+                    let totalWidth = 0;
+                    const charWidths = chars.map(ch => {
+                        const m = ctx.measureText(ch);
+                        return m.width;
+                    });
+                    
+                    const spacingVal = this.state.spacing * 1.5;
+                    totalWidth = charWidths.reduce((acc, w) => acc + w, 0) + (chars.length - 1) * spacingVal;
+
+                    let startX = (w / 2) + this.state.textX - (totalWidth / 2);
+                    const cy = h / 2 + this.state.textY;
+
+                    chars.forEach((ch, i) => {
+                        ctx.fillText(ch, startX, cy);
+                        startX += charWidths[i] + spacingVal;
+                    });
+
+                    ctx.shadowBlur = 0;
+                }
+            },
+
+            generateA4() {
+                const gap = 3, cols = 2, rows = 6;
+                const printCanvas = document.getElementById('printCanvas');
+                printCanvas.width = this.A4_W;
+                printCanvas.height = this.A4_H;
+                const ctx = printCanvas.getContext('2d');
+
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, this.A4_W, this.A4_H);
+
+                for (let row = 0; row < rows; row++) {
+                    for (let col = 0; col < cols; col++) {
+                        ctx.drawImage(
+                            this.canvas, 
+                            col * (this.STICKER_W + gap), 
+                            row * (this.STICKER_H + gap), 
+                            this.STICKER_W, 
+                            this.STICKER_H
+                        );
+                    }
+                }
+                return printCanvas;
+            },
+
+            async saveToGallery() {
+                try {
+                    audio.playClick();
+                    const printCanvas = this.generateA4();
+                    const dataUrl = printCanvas.toDataURL('image/png');
+                    const base64Data = dataUrl.split(',')[1];
+                    const fileName = `Sticker_A4_${Date.now()}.png`;
+                    
+                    // Try Capacitor Filesystem first (Android 9 and below, or with permissions)
+                    if (window.CapFS && window.CapFS.Filesystem) {
+                        try {
+                            // Save to external storage / Pictures
+                            await window.CapFS.Filesystem.writeFile({
+                                path: `Pictures/Stickers/${fileName}`,
+                                data: base64Data,
+                                directory: window.CapFS.Directory.ExternalStorage,
+                                recursive: true
+                            });
+                            showToast('✓ Saved to Gallery');
+                            audio.playSuccess();
+                            this.closeModal('print');
+                            return;
+                        } catch (fsError) {
+                            console.log('External storage failed, trying app directory:', fsError);
+                            
+                            // Fallback to app directory with MediaStore scan
+                            try {
+                                await window.CapFS.Filesystem.writeFile({
+                                    path: fileName,
+                                    data: base64Data,
+                                    directory: window.CapFS.Directory.Documents,
+                                    recursive: true
+                                });
+                                
+                                // Try to notify media scanner via bridge if available
+                                if (typeof cordova !== 'undefined' && cordova.plugins && cordova.plugins.MediaScanner) {
+                                    const fileUri = await window.CapFS.Filesystem.getUri({
+                                        path: fileName,
+                                        directory: window.CapFS.Directory.Documents
+                                    });
+                                    cordova.plugins.MediaScanner.scanFile(fileUri.uri);
+                                }
+                                
+                                showToast('✓ Saved to Documents');
+                                audio.playSuccess();
+                                this.closeModal('print');
+                                return;
+                            } catch (appDirError) {
+                                console.log('App directory save failed:', appDirError);
+                            }
+                        }
+                    }
+                    
+                    // Final fallback: browser download
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = dataUrl;
+                    link.click();
+                    showToast('✓ Downloaded');
+                    audio.playSuccess();
+                    this.closeModal('print');
+                    
+                } catch (error) {
+                    console.error('Save error:', error);
+                    showToast('✗ Save failed', 'error');
+                    audio.playError();
+                }
+            },
+
+            openInfoModal() { 
+                audio.playClick();
+                pushModal('info');
+                document.getElementById('infoModal').classList.add('active'); 
+            },
+            
+            closeInfoModal() { 
+                popModal();
+                document.getElementById('infoModal').classList.remove('active'); 
+            },
+            
+            openModal(name) { 
+                audio.playClick();
+                if (name === 'print') {
+                    this.generateA4(); 
+                }
+                pushModal(name);
+                document.getElementById(name + 'Modal').classList.add('active'); 
+            },
+            
+            closeModal(name) { 
+                popModal();
+                document.getElementById(name + 'Modal').classList.remove('active'); 
+            }
+        };
+
+        window.addEventListener('load', () => app.init());
+    </script>
+</body>
+</html>
