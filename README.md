@@ -1,6 +1,6 @@
 # STICKER MAKER
 
-Sticker Maker is an Android application developed by NKNW Lab as a digital tool for making graffiti stickers.
+Sticker Maker is an Android application for making graffiti stickers.
 
 I'm a graffiti writer and a graphic designer, painting since 2008, on Linux. 
 Not a programmer, a team ora not a company, so feedback is very appreciated!
