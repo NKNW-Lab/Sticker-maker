@@ -10,3 +10,12 @@ local.properties
 *.aab
 .DS_Store
 EOF
+
+# graphic assets, not in the repo
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.zip
